@@ -144,7 +144,18 @@
 
   /* ===== DESIGNS GRID ===== */
   #designs { padding: 100px 5%; background: var(--warm-white); }
-  .filter-tabs { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; justify-content:center; }
+  
+  /* Centered and neat grid layout for categories */
+  .filter-tabs { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    margin-bottom: 48px; 
+    justify-content: center; 
+    max-width: 800px; 
+    margin-left: auto; 
+    margin-right: auto;
+  }
   .filter-btn {
     padding: 10px 24px; border-radius: 50px; font-size: 0.82rem; font-weight: 500;
     cursor: pointer; border: 1.5px solid rgba(74,44,26,0.2); background: transparent;
@@ -261,6 +272,9 @@
     <button class="filter-btn" onclick="filterDesigns('saree', this)">Sarees</button>
     <button class="filter-btn" onclick="filterDesigns('batik', this)">Batik</button>
     <button class="filter-btn" onclick="filterDesigns('kurta', this)">Kurtas</button>
+    <button class="filter-btn" onclick="filterDesigns('pencil', this)">Pencil Art</button>
+    <button class="filter-btn" onclick="filterDesigns('styrofoam', this)">Styrofoam Art</button>
+    <button class="filter-btn" onclick="filterDesigns('wallart', this)">Wall Art</button>
   </div>
 
   <div class="designs-masonry" id="designsGrid">
@@ -301,14 +315,12 @@
 <script>
   // --- PRELOADER LOGIC ---
   window.addEventListener('load', () => {
-    // Normal delay: hides after 1.5 seconds giving time to see the animation
     setTimeout(() => {
       const loader = document.getElementById('preloader');
       if(loader) loader.classList.add('hide');
     }, 1500);
   });
 
-  // Failsafe: Forces the loader to disappear after 4 seconds even if Firebase gets stuck
   setTimeout(() => {
     const loader = document.getElementById('preloader');
     if(loader && !loader.classList.contains('hide')) loader.classList.add('hide');
@@ -327,12 +339,16 @@
     if(nav) nav.classList.toggle('scrolled', window.scrollY > 50);
   });
 
+  // --- FILTER FUNCTION FOR ALL/FIREBASE CATEGORIES ---
   window.filterDesigns = function(cat, btn) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    
     document.querySelectorAll('.design-card').forEach(card => {
-      const cats = card.getAttribute('data-cat') ? card.getAttribute('data-cat').toLowerCase() : '';
-      if (cat === 'all' || cats.includes(cat)) {
+      const cardCat = card.getAttribute('data-cat') ? card.getAttribute('data-cat').toLowerCase().trim() : '';
+      const filterCat = cat.toLowerCase().trim();
+      
+      if (filterCat === 'all' || cardCat === filterCat || cardCat.includes(filterCat)) {
         card.style.display = 'block';
       } else {
         card.style.display = 'none';
@@ -386,8 +402,10 @@
           cardStyle = 'opacity: 0.8;';
         }
         
+        const cleanCategory = data.category ? data.category.toLowerCase().trim() : '';
+        
         const cardHTML = `
-          <div class="design-card" data-cat="${data.category}" style="${cardStyle}">
+          <div class="design-card" data-cat="${cleanCategory}" style="${cardStyle}">
             ${stockBadge}
             <div class="design-img-container">
               <img src="${data.imageUrl}" alt="${data.name}">
@@ -414,3 +432,4 @@
 
 </body>
 </html>
+
